@@ -9,12 +9,13 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:layout_editor_absoluteX="1dp"
+        app:layout_constraintStart_toStartOf="parent"
         tools:layout_editor_absoluteY="1dp">
 
         <GridView
             android:id="@+id/Hagrid"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:numColumns="auto_fit" />
     </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

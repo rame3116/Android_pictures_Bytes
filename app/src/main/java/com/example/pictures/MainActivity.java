@@ -12,6 +12,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -89,20 +90,26 @@ public class MainActivity extends AppCompatActivity {
     public void getPictures() {
         ContentResolver contentResolver = getContentResolver();
         Uri picturesUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-        Cursor songCursor = contentResolver.query(picturesUri, null, null, null, null);
 
-        if (songCursor != null && songCursor.moveToFirst()) {
-            int songTitle = songCursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
-            int songArtist = songCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
-            int songLocation = songCursor.getColumnIndex(MediaStore.Audio.Media.DATA);
+        Cursor picCursor = contentResolver.query(picturesUri, null, null, null, null);
+
+        Log.d("MainActivity", "WEEEESH ??? ");
+        if (picCursor != null && picCursor.moveToFirst()) {
+            int picLocation = picCursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
             do {
-                String currentTitle = songCursor.getString(songTitle);
-                String currentArtist = songCursor.getString(songArtist);
-                String currentLocation = songCursor.getString(songLocation);
+                Log.d("MainActivity", "abusé");
+                arrayList.add(picCursor.getString(picCursor.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME)));
+/*
+                arrayList.add(picCursor.getString(picCursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)));
 
-                arrayList.add(currentTitle + "\n" + currentArtist + "\n" + currentLocation);
-            } while (songCursor.moveToNext());
+                arrayList.add(picCursor.getString(picCursor.getColumnIndexOrThrow(MediaStore.Images.Media.SIZE)));*/
 
+                //arrayList.add(currentLocation);
+            } while (picCursor.moveToNext());
+
+        }
+        else{
+            Log.d("MainActivity", "Envie de rejoindre papa Johnny");
         }
     }
 
