@@ -12,34 +12,10 @@
         app:layout_constraintStart_toStartOf="parent"
         tools:layout_editor_absoluteY="1dp">
 
-        <LinearLayout
+        <GridView
+            android:id="@+id/Hagrid"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="0.5"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:id="@+id/imageView"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    app:srcCompat="?attr/colorControlActivated" />
-            </LinearLayout>
-
-            <GridView
-                android:id="@+id/Hagrid"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="0.5"
-                android:numColumns="auto_fit">
-
-            </GridView>
-
-        </LinearLayout>
-
+            android:numColumns="auto_fit" />
     </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
