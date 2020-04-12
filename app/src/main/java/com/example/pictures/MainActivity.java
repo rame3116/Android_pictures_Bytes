@@ -12,6 +12,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -30,6 +31,8 @@ import android.widget.Toast;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -195,18 +198,18 @@ public class MainActivity extends AppCompatActivity {
 
                 Uri uri = images.get(position);
 
-                Picasso.get().load(uri).into(imageView);
-               // imageView.setImageResource(R.drawable.ic_launcher_background);
-                //imageView.setImageURI(uri);
-//                if (mobile.equals("Windows")) {
-//                    imageView.setImageResource(R.drawable.windows_logo);
-//                } else if (mobile.equals("iOS")) {
-//                    imageView.setImageResource(R.drawable.ios_logo);
-//                } else if (mobile.equals("Blackberry")) {
-//                    imageView.setImageResource(R.drawable.blackberry_logo);
-//                } else {
-//                    imageView.setImageResource(R.drawable.android_logo);
-//                }
+                //Picasso.get().load(uri).into(imageView);
+
+                Drawable draw;
+                try {
+                    InputStream inputStream = getContentResolver().openInputStream(uri);
+                     draw = Drawable.createFromStream(inputStream, uri.toString() );
+                } catch (FileNotFoundException e) {
+                     draw = getResources().getDrawable(R.drawable.ic_launcher_background);
+                }
+
+                imageView.setImageDrawable(draw);
+
 
             } else {
                 gridView = (View) convertView;
