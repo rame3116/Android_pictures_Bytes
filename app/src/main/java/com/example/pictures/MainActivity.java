@@ -6,28 +6,39 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.squareup.picasso.Picasso;
+
+import java.io.File;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final int MY_PERMISSION_REQUEST = 1;
 
-    ArrayList<String> arrayList;
+    ArrayList<Uri> arrayList;
     GridView gridView;
-    ArrayAdapter<String> adapter;
+    CustomAdapter adapter;
     //MediaPlayer mediaPlayer;
     //Uri uriPicked;
 
@@ -55,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
         gridView = (GridView) findViewById(R.id.Hagrid);
         arrayList = new ArrayList<>();
         getPictures();
-        adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, arrayList);
+        adapter = new CustomAdapter(arrayList,this);
         gridView.setAdapter(adapter);
 
 //        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -93,18 +104,20 @@ public class MainActivity extends AppCompatActivity {
 
         Cursor picCursor = contentResolver.query(picturesUri, null, null, null, null);
 
-        Log.d("MainActivity", "WEEEESH ??? ");
         if (picCursor != null && picCursor.moveToFirst()) {
             int picLocation = picCursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
             do {
-                Log.d("MainActivity", "abusé");
-                arrayList.add(picCursor.getString(picCursor.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME)));
-/*
-                arrayList.add(picCursor.getString(picCursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)));
 
-                arrayList.add(picCursor.getString(picCursor.getColumnIndexOrThrow(MediaStore.Images.Media.SIZE)));*/
+                String s = picCursor.getString(picCursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA));
+                Uri uri = Uri.fromFile(new File(s));
+                //Toast.makeText(this,s,Toast.LENGTH_SHORT).show();
 
-                //arrayList.add(currentLocation);
+           
+
+//                ImageView im = findViewById(R.id.imageView);
+//                Picasso.get().load(uri).into(im);
+                arrayList.add(uri);
+
             } while (picCursor.moveToNext());
 
         }
@@ -129,6 +142,77 @@ public class MainActivity extends AppCompatActivity {
                 }
                 return;
             }
+        }
+    }
+
+
+
+
+    private class CustomAdapter extends BaseAdapter{
+
+        ArrayList<Uri> images = null;
+        Context context = null;
+
+        public CustomAdapter(ArrayList<Uri> images, Context context){
+            this.images = images;
+            this.context = context;
+        }
+
+
+        @Override
+        public int getCount() {
+            return images.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return position;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View gridView;
+
+            if(convertView==null){
+
+                gridView = new View(context);
+                // get layout from mobile.xml
+                gridView = inflater.inflate(R.layout.grid_element, null);
+
+                // set value into textview
+//                TextView textView = (TextView) gridView
+//                        .findViewById(R.id.grid_item_label);
+//                textView.setText(mobileValues[position]);
+
+                // set image based on selected text
+                ImageView imageView = (ImageView) gridView.findViewById(R.id.image_grid);
+
+                Uri uri = images.get(position);
+
+                Picasso.get().load(uri).into(imageView);
+               // imageView.setImageResource(R.drawable.ic_launcher_background);
+                //imageView.setImageURI(uri);
+//                if (mobile.equals("Windows")) {
+//                    imageView.setImageResource(R.drawable.windows_logo);
+//                } else if (mobile.equals("iOS")) {
+//                    imageView.setImageResource(R.drawable.ios_logo);
+//                } else if (mobile.equals("Blackberry")) {
+//                    imageView.setImageResource(R.drawable.blackberry_logo);
+//                } else {
+//                    imageView.setImageResource(R.drawable.android_logo);
+//                }
+
+            } else {
+                gridView = (View) convertView;
+            }
+
+            return gridView;
         }
     }
 }
