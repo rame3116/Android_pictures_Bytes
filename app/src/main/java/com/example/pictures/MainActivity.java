@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.gridlayout.widget.GridLayout;
 
 import android.Manifest;
@@ -155,13 +156,25 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 gridView = (View) convertView;
            }
-            String s = images.get(position);
+            final String s = images.get(position);
 
             ImageView imageView =  gridView.findViewById(R.id.imageView);
             //TextView text =  gridView.findViewById(R.id.textView);
 
             //text.setText(s);
-            Picasso.get().load(Uri.fromFile(new File(s))).resize(400,400).into(imageView);
+            Picasso.get().load(Uri.fromFile(new File(s))).resize(600,600).into(imageView);
+
+            imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    FragmentManager fm = getSupportFragmentManager();
+                    FullScreen_fragment editNameDialogFragment = new FullScreen_fragment();
+                    editNameDialogFragment.show(fm, FullScreen_fragment.TAG);
+                    Bundle b = new Bundle();
+                    b.putString("uri", s);
+                    editNameDialogFragment.setArguments(b);
+                }
+            });
            // imageView.setImageURI(Uri.fromFile(new File(s)));
 
             return gridView;
