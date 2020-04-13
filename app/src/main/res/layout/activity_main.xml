@@ -16,7 +16,8 @@
             android:id="@+id/gridv"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="0.5" />
+            android:layout_weight="0.5"
+            android:numColumns="2" />
 
     </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

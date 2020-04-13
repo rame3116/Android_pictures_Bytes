@@ -150,19 +150,10 @@ public class MainActivity extends AppCompatActivity {
             View gridView;
 
            if(convertView==null){
-
-                //gridView = new View(context);
-                // get layout from mobile.xml
                 gridView = inflater.inflate(R.layout.grid_element, null);
-
-
-               Toast.makeText(context, String.valueOf(position),Toast.LENGTH_SHORT).show();
-
 
             } else {
                 gridView = (View) convertView;
-               Toast.makeText(context, "hello",Toast.LENGTH_SHORT).show();
-
            }
             String s = images.get(position);
 
