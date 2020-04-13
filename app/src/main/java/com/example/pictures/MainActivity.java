@@ -15,12 +15,17 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -30,45 +35,49 @@ public class MainActivity extends AppCompatActivity {
     private static final int MY_PERMISSION_REQUEST = 1;
 
     ArrayList<String> arrayList;
-   // GridLayout gridView;
     CustomAdapter adapter;
-    //MediaPlayer mediaPlayer;
-    //Uri uriPicked;
+    GridView gridView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if(ContextCompat.checkSelfPermission(MainActivity.this,
-                Manifest.permission.READ_EXTERNAL_STORAGE)!= PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this,
-                    Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                ActivityCompat.requestPermissions(MainActivity.this,
-                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSION_REQUEST);
-            } else {
-                ActivityCompat.requestPermissions(MainActivity.this,
-                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSION_REQUEST);
-            }
+
+
+
+        if(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)!= PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this,
+                Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            ActivityCompat.requestPermissions(MainActivity.this,
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSION_REQUEST);
+        } else {
+            ActivityCompat.requestPermissions(MainActivity.this,
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSION_REQUEST);
+        }
         } else {
             displayPictures();
         }
     }
 
     public void displayPictures(){
-       // gridView =  findViewById(R.id.grid);
+        gridView =  findViewById(R.id.gridv);
+
         arrayList = new ArrayList<>();
         getPictures();
+        adapter = new CustomAdapter(arrayList,this);
+        gridView.setAdapter(adapter);
+
     }
 
     public void getPictures() {
         ContentResolver contentResolver = getContentResolver();
         Uri picturesUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
         Cursor picCursor = contentResolver.query(picturesUri, null, null, null, null);
-        GridLayout gv = findViewById(R.id.grid);
-
-        gv.setColumnCount(3);
-        gv.setRowCount(500);
+       // GridLayout gv = findViewById(R.id.grid);
+//
+//        gv.setColumnCount(3);
+//        gv.setRowCount(500);
 
         if (picCursor != null && picCursor.moveToFirst()) {
             int picLocation = picCursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
@@ -76,16 +85,7 @@ public class MainActivity extends AppCompatActivity {
 
                 String s = picCursor.getString(picLocation);
 
-
-                FragmentManager fm = ((MainActivity) this).getSupportFragmentManager();
-                Gallery_Fragment frag = new Gallery_Fragment();
-
-                Bundle args = new Bundle();
-                args.putString("path", s);
-                args.putString("uri", s);
-                frag.setArguments(args);
-
-                fm.beginTransaction().add(gv.getId(), frag,"someTag1").commit();
+                arrayList.add(s);
 
             } while (picCursor.moveToNext());
 
@@ -124,6 +124,8 @@ public class MainActivity extends AppCompatActivity {
         public CustomAdapter(ArrayList<String> images, Context context){
             this.images = images;
             this.context = context;
+           // Toast.makeText(context, String.valueOf(images.size()),Toast.LENGTH_SHORT).show();
+
         }
 
 
@@ -144,42 +146,35 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-//            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-//            View gridView;
-//
-//         //   if(convertView==null){
-//
-//                //gridView = new View(context);
-//                // get layout from mobile.xml
-//                gridView = inflater.inflate(R.layout.grid_element, null);
-//
-//                String s = images.get(position);
-//
-//                ImageView imageView =  gridView.findViewById(R.id.image_grid);
-//                TextView text =  gridView.findViewById(R.id.textView);
-//
-//                text.setText(s);
-//                imageView.setImageURI(Uri.fromFile(new File(s)));
-//
-//
-////            } else {
-////                gridView = (View) convertView;
-////            }
-//
-//            return gridView;
+            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View gridView;
 
-//            ImageView iview;
-//            if (convertView == null) {
-//                iview = new ImageView(context);
-//                iview.setLayoutParams(new GridView.LayoutParams(150,200));
-//                iview.setScaleType(ImageView.ScaleType.CENTER_CROP);
-//                iview.setPadding(5, 5, 5, 5);
-//            } else {
-//                iview = (ImageView) convertView;
-//            }
-//            iview.setImageURI(Uri.fromFile(new File(images.get(position))));
-//            return iview;
-            return null;
+           if(convertView==null){
+
+                //gridView = new View(context);
+                // get layout from mobile.xml
+                gridView = inflater.inflate(R.layout.grid_element, null);
+
+
+               Toast.makeText(context, String.valueOf(position),Toast.LENGTH_SHORT).show();
+
+
+            } else {
+                gridView = (View) convertView;
+               Toast.makeText(context, "hello",Toast.LENGTH_SHORT).show();
+
+           }
+            String s = images.get(position);
+
+            ImageView imageView =  gridView.findViewById(R.id.imageView);
+            //TextView text =  gridView.findViewById(R.id.textView);
+
+            //text.setText(s);
+            Picasso.get().load(Uri.fromFile(new File(s))).resize(400,400).into(imageView);
+           // imageView.setImageURI(Uri.fromFile(new File(s)));
+
+            return gridView;
+
         }
     }
 

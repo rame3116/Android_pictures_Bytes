@@ -12,18 +12,11 @@
         app:layout_constraintStart_toStartOf="parent"
         tools:layout_editor_absoluteY="1dp">
 
-        <ScrollView
+        <GridView
+            android:id="@+id/gridv"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <androidx.gridlayout.widget.GridLayout
-                android:id="@+id/grid"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:numColumns="2">
-
-            </androidx.gridlayout.widget.GridLayout>
-        </ScrollView>
+            android:layout_height="match_parent"
+            android:layout_weight="0.5" />
 
     </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
