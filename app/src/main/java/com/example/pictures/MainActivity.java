@@ -3,10 +3,12 @@ package com.example.pictures;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentManager;
+import androidx.gridlayout.widget.GridLayout;
 
 import android.Manifest;
 import android.content.ContentResolver;
-import android.content.Intent;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
@@ -14,11 +16,13 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.GridView;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import java.io.File;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -26,8 +30,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int MY_PERMISSION_REQUEST = 1;
 
     ArrayList<String> arrayList;
-    GridView gridView;
-    ArrayAdapter<String> adapter;
+   // GridLayout gridView;
+    CustomAdapter adapter;
     //MediaPlayer mediaPlayer;
     //Uri uriPicked;
 
@@ -52,59 +56,37 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void displayPictures(){
-        gridView = (GridView) findViewById(R.id.Hagrid);
+       // gridView =  findViewById(R.id.grid);
         arrayList = new ArrayList<>();
         getPictures();
-        adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, arrayList);
-        gridView.setAdapter(adapter);
-
-//        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            /*public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-//                /*Intent intent = new Intent(this, HelloService.class);
-//                startService(intent);
-//                if(mediaPlayer != null) {
-//
-//                    mediaPlayer.release();
-//                }*/
-//
-//                String[] lines = arrayList.get(position).split(System.getProperty("line.separator"));
-//                //uriPicked = Uri.parse(lines[2]);
-//
-//
-//                Intent intent = new Intent(view.getContext(),Listening.class);
-//                intent.putExtra("uriPicked",lines[2]);
-//                startActivity(intent);
-//                /*
-//                mediaPlayer = MediaPlayer.create(MainActivity.this,Uri.parse(lines[2]));
-//                mediaPlayer.start();
-//
-//                 */
-//
-//
-//
-//        });
-
     }
 
     public void getPictures() {
         ContentResolver contentResolver = getContentResolver();
         Uri picturesUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-
         Cursor picCursor = contentResolver.query(picturesUri, null, null, null, null);
+        GridLayout gv = findViewById(R.id.grid);
 
-        Log.d("MainActivity", "WEEEESH ??? ");
+        gv.setColumnCount(3);
+        gv.setRowCount(500);
+
         if (picCursor != null && picCursor.moveToFirst()) {
             int picLocation = picCursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
             do {
-                Log.d("MainActivity", "abusé");
-                arrayList.add(picCursor.getString(picCursor.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME)));
-/*
-                arrayList.add(picCursor.getString(picCursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)));
 
-                arrayList.add(picCursor.getString(picCursor.getColumnIndexOrThrow(MediaStore.Images.Media.SIZE)));*/
+                String s = picCursor.getString(picLocation);
 
-                //arrayList.add(currentLocation);
+
+                FragmentManager fm = ((MainActivity) this).getSupportFragmentManager();
+                Gallery_Fragment frag = new Gallery_Fragment();
+
+                Bundle args = new Bundle();
+                args.putString("path", s);
+                args.putString("uri", s);
+                frag.setArguments(args);
+
+                fm.beginTransaction().add(gv.getId(), frag,"someTag1").commit();
+
             } while (picCursor.moveToNext());
 
         }
@@ -131,4 +113,74 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+
+
+    private class CustomAdapter extends BaseAdapter {
+
+        ArrayList<String> images = null;
+        Context context = null;
+
+        public CustomAdapter(ArrayList<String> images, Context context){
+            this.images = images;
+            this.context = context;
+        }
+
+
+        @Override
+        public int getCount() {
+            return images.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return position;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+//            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+//            View gridView;
+//
+//         //   if(convertView==null){
+//
+//                //gridView = new View(context);
+//                // get layout from mobile.xml
+//                gridView = inflater.inflate(R.layout.grid_element, null);
+//
+//                String s = images.get(position);
+//
+//                ImageView imageView =  gridView.findViewById(R.id.image_grid);
+//                TextView text =  gridView.findViewById(R.id.textView);
+//
+//                text.setText(s);
+//                imageView.setImageURI(Uri.fromFile(new File(s)));
+//
+//
+////            } else {
+////                gridView = (View) convertView;
+////            }
+//
+//            return gridView;
+
+//            ImageView iview;
+//            if (convertView == null) {
+//                iview = new ImageView(context);
+//                iview.setLayoutParams(new GridView.LayoutParams(150,200));
+//                iview.setScaleType(ImageView.ScaleType.CENTER_CROP);
+//                iview.setPadding(5, 5, 5, 5);
+//            } else {
+//                iview = (ImageView) convertView;
+//            }
+//            iview.setImageURI(Uri.fromFile(new File(images.get(position))));
+//            return iview;
+            return null;
+        }
+    }
+
 }

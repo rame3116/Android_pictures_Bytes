@@ -12,10 +12,18 @@
         app:layout_constraintStart_toStartOf="parent"
         tools:layout_editor_absoluteY="1dp">
 
-        <GridView
-            android:id="@+id/Hagrid"
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:numColumns="auto_fit" />
+            android:layout_height="match_parent">
+
+            <androidx.gridlayout.widget.GridLayout
+                android:id="@+id/grid"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:numColumns="2">
+
+            </androidx.gridlayout.widget.GridLayout>
+        </ScrollView>
+
     </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
