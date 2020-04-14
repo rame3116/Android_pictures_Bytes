@@ -2,6 +2,8 @@ package com.example.pictures;
 
 
 import android.app.Dialog;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -12,7 +14,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
+import java.io.File;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -34,8 +38,22 @@ public class FullScreen_fragment extends DialogFragment {
 
         ImageView im = v.findViewById(R.id.imageView_dialog);
         Bundle args = getArguments();
-        Uri uriData = Uri.parse(args.getString("uri"));
+        String path = args.getString("uri");
+        Uri uriData = Uri.parse(path);
         im.setImageURI(uriData);
+        int height = im.getHeight();
+        int width = im.getWidth();
+
+        Bitmap byteImage = BitmapFactory.decodeFile(path);
+        //Lire les 2 derniers pixels ?
+        int lastPixel= byteImage.getPixel(width-1,height-1); //Un pixel = un octet
+        int penultimatePixel = byteImage.getPixel(width-2,height-2);
+
+        int Pixel = (penultimatePixel << 8) | lastPixel; //Décalage à gauche puis OU
+
+        TextView text =  v.findViewById(R.id.lsb);
+
+        text.setText(Pixel);
 
         return v;
     }
@@ -50,5 +68,15 @@ public class FullScreen_fragment extends DialogFragment {
             dialog.getWindow().setLayout(width, height);
         }
     }
+
+    /*Transformer un message en bits :
+    String w = “William”;
+    Byte[] b = w.getBytes();
+
+
+    read (BitmapFactory.decode*(...) methods) and write (Bitmap.compress(...) method).
+    //byteImage.setPixel();
+
+    */
 
 }
