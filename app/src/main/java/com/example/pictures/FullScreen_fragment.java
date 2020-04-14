@@ -10,13 +10,17 @@ import android.os.Bundle;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
 import java.io.File;
+import java.io.IOException;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -41,19 +45,31 @@ public class FullScreen_fragment extends DialogFragment {
         String path = args.getString("uri");
         Uri uriData = Uri.parse(path);
         im.setImageURI(uriData);
-        int height = im.getHeight();
-        int width = im.getWidth();
+
+
+        Bitmap myImage = BitmapFactory.decodeFile(path);
+        int width = 55;
+        int height = 55;
+
+        width = myImage.getWidth();
+        height = myImage.getHeight();
+
+        //int height = im.getHeight();
+        Log.d(TAG, "onCreateView: height : " + height);
+
+        //int width = im.getWidth();
+        Log.d(TAG, "onCreateView: width : " + width);
 
         Bitmap byteImage = BitmapFactory.decodeFile(path);
         //Lire les 2 derniers pixels ?
         int lastPixel= byteImage.getPixel(width-1,height-1); //Un pixel = un octet
         int penultimatePixel = byteImage.getPixel(width-2,height-2);
 
-        int Pixel = (penultimatePixel << 8) | lastPixel; //Décalage à gauche puis OU
-
+        int pixel = (penultimatePixel << 8) | lastPixel; //Décalage à gauche puis OU
+        String pixelbytes = Integer.toBinaryString(pixel) ;
         TextView text =  v.findViewById(R.id.lsb);
 
-        text.setText(Pixel);
+        text.setText(pixelbytes);
 
         return v;
     }
