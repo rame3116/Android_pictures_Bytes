@@ -21,6 +21,7 @@ import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -60,16 +61,39 @@ public class FullScreen_fragment extends DialogFragment {
         //int width = im.getWidth();
         Log.d(TAG, "onCreateView: width : " + width);
 
+        //ATTENTION : Il faut récupérer les 2 bits les moins significatifs de CHAQUE composante de couleur
+        //=> lire
+
         Bitmap byteImage = BitmapFactory.decodeFile(path);
-        //Lire les 2 derniers pixels ?
-        int lastPixel= byteImage.getPixel(width-1,height-1); //Un pixel = un octet
-        int penultimatePixel = byteImage.getPixel(width-2,height-2);
+        byte[] result = new byte[(int) (0.5*width*height +1)];
+        result[0] =(byte) (byteImage.getPixel(0,0) & 3);
+        int i = 1;
+        int j=1;
+        for (int x = 1; x < width-1; x++){
+            for (int y = 1 ; y< height-1; y++){
+                if ((j % 4) ==0){ // à la 4eme itération
+                    //je change de place le tableau
+                    i++;
+                    j=1;
+                }
+                else{
+                    // décalage à gauche
+                    result[i] = (byte) (result[i]<<2) ;
+                }
+                //Pixel actuel
+                int pixel = byteImage.getPixel(x,y);
+                int twoBits = pixel & 3; //Récupère les 2 derniers bits (3 = 00000011)
 
-        int pixel = (penultimatePixel << 8) | lastPixel; //Décalage à gauche puis OU
-        String pixelbytes = Integer.toBinaryString(pixel) ;
+                result[i] = (byte) (result[i] | twoBits); //Mets les 2 bits à la fin
+            }
+        }
+
+
+
+        String message = new String (result) ;
+
         TextView text =  v.findViewById(R.id.lsb);
-
-        text.setText(pixelbytes);
+        text.setText(message);
 
         return v;
     }
