@@ -10,6 +10,7 @@ import android.os.Bundle;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -83,7 +85,7 @@ public class FullScreen_fragment extends DialogFragment {
         //=> lire
 
         Bitmap byteImage = BitmapFactory.decodeFile(path);
-        byte[] result = new byte[(int) (0.5*width*height +1)];
+        byte[] result = new byte[(int) (8*8 +1)];
         result[0] =(byte) (byteImage.getPixel(0,0) & 3);
         int i = 1;
         int j=1;
@@ -130,6 +132,7 @@ public class FullScreen_fragment extends DialogFragment {
     }
 
   public void coder() {
+     // Toast.makeText(getContext(),"BEGIN !!!", Toast.LENGTH_SHORT).show();
         byte[] codeByteBack = text.getText().toString().getBytes();
         byte[] codeByte = wrap(codeByteBack); //message à stocker
         byteImage = byteImage.copy( Bitmap.Config.ARGB_8888 , true);
@@ -146,29 +149,29 @@ public class FullScreen_fragment extends DialogFragment {
             Log.d(TAG, "coder: byteImage height= "+height);
             byteImage.setPixel(x-1,y-1,77); //3eme argument : mon code
         }
-
+     // Toast.makeText(getContext(),"END !!!", Toast.LENGTH_SHORT).show();
         //FAIRE LE LIEN ENTRE URI ET byteImage
-
-      File file = new File(path);
-      FileOutputStream fOut = null;
-      try {
-          fOut = new FileOutputStream(file);
-      } catch (FileNotFoundException e) {
-          e.printStackTrace();
-      }
-
-      byteImage.compress(Bitmap.CompressFormat.PNG, 100, fOut);
-      Log.d(TAG, "coder: Je suis là frère");
-      try {
-          fOut.flush();
-      } catch (IOException e) {
-          e.printStackTrace();
-      }
-      try {
-          fOut.close();
-      } catch (IOException e) {
-          e.printStackTrace();
-      }
+        store(byteImage,path);
+//      File file = new File(path);
+//      FileOutputStream fOut = null;
+//      try {
+//          fOut = new FileOutputStream(file);
+//      } catch (FileNotFoundException e) {
+//          e.printStackTrace();
+//      }
+//
+//      byteImage.compress(Bitmap.CompressFormat.PNG, 100, fOut);
+//      Log.d(TAG, "coder: Je suis là frère");
+//      try {
+//          fOut.flush();
+//      } catch (IOException e) {
+//          e.printStackTrace();
+//      }
+//      try {
+//          fOut.close();
+//      } catch (IOException e) {
+//          e.printStackTrace();
+//      }
 
   }
   public byte[] wrap(byte[] list){
@@ -177,5 +180,38 @@ public class FullScreen_fragment extends DialogFragment {
             result[i]= list[list.length - 1 -i];
         }
         return result;
+  }
+
+  public void store(Bitmap bm, String filename){
+
+      String path=":/storage/sdcard0/DCIM/Camera/1414240995236.jpg";
+      String dirpath = "";
+      int i =0;
+        for(String s : filename.split("/")){
+            if(i==filename.split("/").length-1){
+                break;
+            }
+            i++;
+            dirpath += s+"/";
+        }
+        dirpath+="/";
+
+        String name = filename.substring(filename.lastIndexOf("/")+1);
+     // Toast.makeText(getContext(),dirpath, Toast.LENGTH_SHORT).show();
+        File dir = new File(dirpath);
+        if(!dir.exists()){
+            dir.mkdirs();
+        }
+        File file = new File(dirpath,name);
+        try {
+            FileOutputStream fos = new FileOutputStream(file);
+            bm.compress(Bitmap.CompressFormat.PNG,100,fos);
+            fos.flush();
+            fos.close();
+            Toast.makeText(getContext(),"SAVED !!!", Toast.LENGTH_LONG).show();
+        }catch (Exception e){
+            e.printStackTrace();
+            Toast.makeText(getContext(),e.getMessage(), Toast.LENGTH_LONG).show();
+        }
   }
 }
