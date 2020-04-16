@@ -158,9 +158,9 @@ public class FullScreen_fragment extends DialogFragment {
 
       //Rangement 2 bits par case
       for(int x=0;x<beforeTidy.length;x++){
-          codeByteBack[4*x]= (byte) (beforeTidy[x]&192);
-          codeByteBack[4*x+1]= (byte) (beforeTidy[x]&48);
-          codeByteBack[4*x+2]= (byte) (beforeTidy[x]&12);
+          codeByteBack[4*x]= (byte) ((beforeTidy[x]&192) >>6);
+          codeByteBack[4*x+1]= (byte) ((beforeTidy[x]&48) >>4);
+          codeByteBack[4*x+2]= (byte) ((beforeTidy[x]&12)>>2);
           codeByteBack[4*x+3]= (byte) (beforeTidy[x]&3);
 
 
@@ -174,7 +174,7 @@ public class FullScreen_fragment extends DialogFragment {
                 x++;
             }
 
-            int aux = byteImage.getPixel(x,y) &252; //Met à 0 les 2 derniers bits
+            int aux = (byteImage.getPixel(x,y) &252); //Met à 0 les 2 derniers bits
             int toSet =0;
             if(codeByte.length<=i){ //Si on a dépassé le nombre de caractères du message
                 toSet = aux;
@@ -182,7 +182,7 @@ public class FullScreen_fragment extends DialogFragment {
             else {
                 toSet = aux | codeByte[i];
             }
-            Log.d(TAG, "coder: TO SET "+i+"EN BINAIRE : "+toSet);
+            Log.d(TAG, "coder: TO SET "+i+" EN BINAIRE : "+Integer.toBinaryString(toSet));
             byteImage.setPixel(x,y,toSet); //3eme argument : mon code
         }
      // Toast.makeText(getContext(),"END !!!", Toast.LENGTH_SHORT).show();
