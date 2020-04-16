@@ -41,6 +41,7 @@ public class FullScreen_fragment extends DialogFragment {
     public int width;
     public int height;
     public String path;
+    private int NB_CHAR_MAX = 64;
     private Button bouton;
 
     public FullScreen_fragment() {
@@ -85,33 +86,48 @@ public class FullScreen_fragment extends DialogFragment {
         //=> lire
 
         Bitmap byteImage = BitmapFactory.decodeFile(path);
-        byte[] result = new byte[(int) (8*8 +1)];
-        result[0] =(byte) (byteImage.getPixel(0,0) & 3);
-        int i = 1;
-        int j=1;
-       // for (int y = 1 ; y< height-1; y++){
-         //   for (int x = 1; x < width-1; x++){
-        for (int y = 1 ; y< 8; y++){
-            for (int x = 1; x < 8; x++){
-                if ((j % 4) ==0){ // à la 4eme itération
-                    //je change de place le tableau
-                    i++;
-                    j=1;
-                }
-                else{
-                    // décalage à gauche
-                    result[i] = (byte) (result[i]<<2) ;
-                    j++;
-                }
-                //Pixel actuel
-                int pixel = byteImage.getPixel(x,y);
-                int twoBits = pixel & 3; //Récupère les 2 derniers bits (3 = 00000011)
+        byte[] result = new byte[64];
 
-                result[i] = (byte) (result[i] | twoBits); //Mets les 2 bits à la fin
+        for(int i = 0,j=0, x = 0, y =0 ; i < NB_CHAR_MAX; y++){ //64 caractères max pour l'instant
+            /*if(y >= height){
+                y=0;
+                x++;
+            }*/
+            if(y > height){
+                y=0;
+                x++;
             }
+            byte waiting=0;
+
+            Log.d(TAG, "onCreateView:x = "+x+" y = "+y+" width = "+width+" height = "+height+" i= "+i);
+            //Pixel actuel
+            int pixel = byteImage.getPixel(x,y);
+            int twoBits = pixel & 3; //Récupère les 2 derniers bits (3 = 00000011)
+
+            if (j==0){
+                waiting = (byte) (twoBits<<6);
+                j++;
+            }
+            if(j==1) {
+                waiting = (byte) (waiting | (twoBits<<4));
+                j++;
+            }
+            if(j==2) {
+                waiting = (byte) (waiting | (twoBits<<2));
+                j++;
+            }
+            if(j==3) {
+                waiting = (byte) (waiting| twoBits);
+                j=0;
+                result[i]=waiting;
+                i++;
+            }
+
+
         }
-
-
+        for(int k=0;k<result.length;k++){
+            Log.d(TAG, "coder: RESULT "+k+" EN BINAIRE : "+Integer.toBinaryString(result[k]));
+        }
         String message = new String (result) ;
 
         text =  v.findViewById(R.id.lsb);
@@ -132,46 +148,47 @@ public class FullScreen_fragment extends DialogFragment {
     }
 
   public void coder() {
-     // Toast.makeText(getContext(),"BEGIN !!!", Toast.LENGTH_SHORT).show();
-        byte[] codeByteBack = text.getText().toString().getBytes();
-        byte[] codeByte = wrap(codeByteBack); //message à stocker
-        byteImage = byteImage.copy( Bitmap.Config.ARGB_8888 , true);
+        // Toast.makeText(getContext(),"BEGIN !!!", Toast.LENGTH_SHORT).show();
 
-      //à chaque itération, récupérer les deux bits
-        for(int i = 0, x = 1, y =1 ; i < codeByte.length; i++, x++){
-            if(x > width){
-                x=1;
-                y++;
+      byte[] beforeTidy = text.getText().toString().getBytes();
+      for(int k=0;k<beforeTidy.length;k++){
+          Log.d(TAG, "coder: MESSAGE "+k+" EN BINAIRE : "+Integer.toBinaryString(beforeTidy[k]));
+      }
+      byte[] codeByteBack = new byte[beforeTidy.length*4];
+
+      //Rangement 2 bits par case
+      for(int x=0;x<beforeTidy.length;x++){
+          codeByteBack[4*x]= (byte) (beforeTidy[x]&192);
+          codeByteBack[4*x+1]= (byte) (beforeTidy[x]&48);
+          codeByteBack[4*x+2]= (byte) (beforeTidy[x]&12);
+          codeByteBack[4*x+3]= (byte) (beforeTidy[x]&3);
+
+
+      }
+     byte[] codeByte = wrap(codeByteBack); //message à stocker
+       byteImage = byteImage.copy( Bitmap.Config.ARGB_8888 , true);
+
+        for(int i = 0, x = 0, y =0 ; i < NB_CHAR_MAX; i++, y++){
+            if(y > height){
+                y=0;
+                x++;
             }
-            Log.d(TAG, "coder: x= "+x);
-            Log.d(TAG, "coder: y= "+y);
-            Log.d(TAG, "coder: byteImage width= "+width);
-            Log.d(TAG, "coder: byteImage height= "+height);
-            byteImage.setPixel(x-1,y-1,77); //3eme argument : mon code
+
+            int aux = byteImage.getPixel(x,y) &252; //Met à 0 les 2 derniers bits
+            int toSet =0;
+            if(codeByte.length<=i){ //Si on a dépassé le nombre de caractères du message
+                toSet = aux;
+           }
+            else {
+                toSet = aux | codeByte[i];
+            }
+            Log.d(TAG, "coder: TO SET "+i+"EN BINAIRE : "+toSet);
+            byteImage.setPixel(x,y,toSet); //3eme argument : mon code
         }
      // Toast.makeText(getContext(),"END !!!", Toast.LENGTH_SHORT).show();
-        //FAIRE LE LIEN ENTRE URI ET byteImage
+        //FAIT LE LIEN ENTRE URI ET byteImage
         store(byteImage,path);
-//      File file = new File(path);
-//      FileOutputStream fOut = null;
-//      try {
-//          fOut = new FileOutputStream(file);
-//      } catch (FileNotFoundException e) {
-//          e.printStackTrace();
-//      }
-//
-//      byteImage.compress(Bitmap.CompressFormat.PNG, 100, fOut);
-//      Log.d(TAG, "coder: Je suis là frère");
-//      try {
-//          fOut.flush();
-//      } catch (IOException e) {
-//          e.printStackTrace();
-//      }
-//      try {
-//          fOut.close();
-//      } catch (IOException e) {
-//          e.printStackTrace();
-//      }
+
 
   }
   public byte[] wrap(byte[] list){
@@ -184,7 +201,6 @@ public class FullScreen_fragment extends DialogFragment {
 
   public void store(Bitmap bm, String filename){
 
-      String path=":/storage/sdcard0/DCIM/Camera/1414240995236.jpg";
       String dirpath = "";
       int i =0;
         for(String s : filename.split("/")){
