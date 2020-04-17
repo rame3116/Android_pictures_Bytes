@@ -21,13 +21,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.squareup.picasso.Picasso;
-
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -76,30 +72,19 @@ public class FullScreen_fragment extends DialogFragment {
         width = byteImage.getWidth();
         height = byteImage.getHeight();
 
-        //int height = im.getHeight();
-        Log.d(TAG, "onCreateView: height : " + height);
-
-        //int width = im.getWidth();
-        Log.d(TAG, "onCreateView: width : " + width);
-
         //ATTENTION : Il faut récupérer les 2 bits les moins significatifs de CHAQUE composante de couleur
-        //=> lire
 
         Bitmap byteImage = BitmapFactory.decodeFile(path);
         byte[] result = new byte[64];
+        byte waiting =0;
 
         for(int i = 0,j=0, x = 0, y =0 ; i < NB_CHAR_MAX; y++){ //64 caractères max pour l'instant
-            /*if(y >= height){
-                y=0;
-                x++;
-            }*/
-            if(y > height){
+
+            if(y >= height){
                 y=0;
                 x++;
             }
-            byte waiting=0;
 
-            Log.d(TAG, "onCreateView:x = "+x+" y = "+y+" width = "+width+" height = "+height+" i= "+i);
             //Pixel actuel
             int pixel = byteImage.getPixel(x,y);
             int twoBits = pixel & 3; //Récupère les 2 derniers bits (3 = 00000011)
@@ -107,27 +92,29 @@ public class FullScreen_fragment extends DialogFragment {
             if (j==0){
                 waiting = (byte) (twoBits<<6);
                 j++;
+                continue;
             }
             if(j==1) {
                 waiting = (byte) (waiting | (twoBits<<4));
                 j++;
+                continue;
             }
             if(j==2) {
                 waiting = (byte) (waiting | (twoBits<<2));
                 j++;
+                continue;
             }
             if(j==3) {
                 waiting = (byte) (waiting| twoBits);
                 j=0;
                 result[i]=waiting;
+                waiting=0;
                 i++;
             }
 
 
         }
-        for(int k=0;k<result.length;k++){
-            Log.d(TAG, "coder: RESULT "+k+" EN BINAIRE : "+Integer.toBinaryString(result[k]));
-        }
+
         String message = new String (result) ;
 
         text =  v.findViewById(R.id.lsb);
@@ -148,24 +135,20 @@ public class FullScreen_fragment extends DialogFragment {
     }
 
   public void coder() {
-        // Toast.makeText(getContext(),"BEGIN !!!", Toast.LENGTH_SHORT).show();
 
       byte[] beforeTidy = text.getText().toString().getBytes();
-      for(int k=0;k<beforeTidy.length;k++){
-          Log.d(TAG, "coder: MESSAGE "+k+" EN BINAIRE : "+Integer.toBinaryString(beforeTidy[k]));
-      }
-      byte[] codeByteBack = new byte[beforeTidy.length*4];
+
+      byte[] codeByte = new byte[beforeTidy.length*4];
 
       //Rangement 2 bits par case
       for(int x=0;x<beforeTidy.length;x++){
-          codeByteBack[4*x]= (byte) ((beforeTidy[x]&192) >>6);
-          codeByteBack[4*x+1]= (byte) ((beforeTidy[x]&48) >>4);
-          codeByteBack[4*x+2]= (byte) ((beforeTidy[x]&12)>>2);
-          codeByteBack[4*x+3]= (byte) (beforeTidy[x]&3);
+          codeByte[4*x]= (byte) ((beforeTidy[x]&192) >>6);
+          codeByte[4*x+1]= (byte) ((beforeTidy[x]&48) >>4);
+          codeByte[4*x+2]= (byte) ((beforeTidy[x]&12)>>2);
+          codeByte[4*x+3]= (byte) (beforeTidy[x]&3);
 
 
       }
-     byte[] codeByte = wrap(codeByteBack); //message à stocker
        byteImage = byteImage.copy( Bitmap.Config.ARGB_8888 , true);
 
         for(int i = 0, x = 0, y =0 ; i < NB_CHAR_MAX; i++, y++){
@@ -182,21 +165,10 @@ public class FullScreen_fragment extends DialogFragment {
             else {
                 toSet = aux | codeByte[i];
             }
-            Log.d(TAG, "coder: TO SET "+i+" EN BINAIRE : "+Integer.toBinaryString(toSet));
             byteImage.setPixel(x,y,toSet); //3eme argument : mon code
         }
-     // Toast.makeText(getContext(),"END !!!", Toast.LENGTH_SHORT).show();
         //FAIT LE LIEN ENTRE URI ET byteImage
         store(byteImage,path);
-
-
-  }
-  public byte[] wrap(byte[] list){
-        byte[] result = new byte[list.length];
-        for (int i = 0; i<list.length;i++){
-            result[i]= list[list.length - 1 -i];
-        }
-        return result;
   }
 
   public void store(Bitmap bm, String filename){

@@ -77,10 +77,7 @@ public class MainActivity extends AppCompatActivity {
         ContentResolver contentResolver = getContentResolver();
         Uri picturesUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
         Cursor picCursor = contentResolver.query(picturesUri, null, null, null, null);
-       // GridLayout gv = findViewById(R.id.grid);
-//
-//        gv.setColumnCount(3);
-//        gv.setRowCount(500);
+
 
         if (picCursor != null && picCursor.moveToFirst()) {
             int picLocation = picCursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
@@ -94,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
 
         }
         else{
-            Log.d("MainActivity", "Envie de rejoindre papa Johnny");
+            Log.d("MainActivity", "Aucune image");
         }
     }
 
@@ -128,8 +125,6 @@ public class MainActivity extends AppCompatActivity {
         public CustomAdapter(ArrayList<String> images, Context context){
             this.images = images;
             this.context = context;
-           // Toast.makeText(context, String.valueOf(images.size()),Toast.LENGTH_SHORT).show();
-
         }
 
 
@@ -162,9 +157,7 @@ public class MainActivity extends AppCompatActivity {
             final String s = images.get(position);
 
             ImageView imageView =  gridView.findViewById(R.id.imageView);
-            //TextView text =  gridView.findViewById(R.id.textView);
 
-            //text.setText(s);
             Picasso.get().load(Uri.fromFile(new File(s))).resize(600,600).into(imageView);
 
             imageView.setOnClickListener(new View.OnClickListener() {
@@ -178,8 +171,6 @@ public class MainActivity extends AppCompatActivity {
                     editNameDialogFragment.setArguments(b);
                 }
             });
-           // imageView.setImageURI(Uri.fromFile(new File(s)));
-
             return gridView;
 
         }
